@@ -156,15 +156,6 @@ jobs:
         echo "$GEMINI_JSON" | head -c 500
         echo "===================="
 
-    # - name: Validate analyzed JSON
-    #   shell: bash
-    #   run: |
-    #     jq -e '
-    #       type=="object" and has("articles") and (.articles|type=="array") and
-    #       all(.articles[]; has("title") and has("link") and has("guid") and has("summary")
-    #         and (.category=="AI関連" or .category=="AI以外"))
-    #     ' <<< "$GEMINI_JSON" > /dev/null
-
     - name: Process analysis results
       id: process
       env:
@@ -182,3 +173,35 @@ jobs:
         echo "🤖 Gemini Analysis Results:"
         echo "   Total analyzed: ${{ steps.process.outputs.analyzed-count }}"
         echo "✅ Ready for Discord notification job"
+
+  # Job3: Discord通知
+  discord-switch:
+    runs-on: ubuntu-latest
+    needs: gemini-analysis
+    if: needs.gemini-analysis.outputs.analyzed-count > 0
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Download analyzed articles
+      uses: actions/download-artifact@v4
+      with:
+        name: analyzed-articles
+        path: .
+
+    - name: Send Discord notifications
+      env:
+        DISCORD_AI_WEBHOOK: ${{ secrets.DISCORD_AI_WEBHOOK }}
+        DISCORD_OTHER_WEBHOOK: ${{ secrets.DISCORD_OTHER_WEBHOOK }}
+      run: node scripts/discord-notifier.js
+
+    - name: Discord summary
+      run: |
+        echo "📢 Discord notifications sent"
+        echo "✅ RSS monitoring workflow completed"
