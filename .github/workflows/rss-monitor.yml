@@ -100,48 +100,31 @@ jobs:
             "output": { "format": "json" }
           }
         prompt: |
-          あなたは記事の分類と要約を行うAIです。
+          以下のJSONファイルを読み込んで、記事を分析してください。
 
-          1) run_shell_command(cat, "new-articles.json") で記事配列を読み込んでください。
-             各要素は { title, link, pubDate, content, contentSnippet, guid } を持ちます。
+          run_shell_command(cat, "new-articles.json")
 
-          2) 各記事ごとに以下を行い、最終的に {"articles":[...]} の **JSONのみ** を生成してください。
-             - category: 「AI関連」または「AI以外」の判定
-               * AI関連: 人工知能、機械学習、深層学習、ChatGPT、Gemini、Claude等のAIツール、プログラミングでのAI活用、AI開発、データサイエンス関連
-               * AI以外: 上記以外のすべて
-             - summary: 本文ベースの日本語要約（**content → contentSnippet → title の順に参照**）
-               * 事実に忠実に、2–3文、最大200字
-               * 誇張や新規事実の創作はしない
-               * 具体的なトピックや手法・ライブラリ名があれば含める
-             - title, link, pubDate, guid は入力の値をそのまま転記する
+          各記事について：
+          - AI関連かAI以外かを判定
+          - 簡潔な要約を作成
 
+          以下のJSON形式で出力してください：
+          {"articles":[{"title":"記事タイトル","link":"URL","pubDate":"日付","guid":"ID","category":"AI関連","summary":"要約"}]}
 
-          出力スキーマ（厳守）:
-          {
-            "articles": [
-              {
-                "title": "string",
-                "link": "string", 
-                "pubDate": "string",
-                "guid": "string",
-                "category": "AI関連" | "AI以外",
-                "summary": "string"
-              }
-            ]
-          }
-
-    - name: Debug and export Gemini JSON
+    - name: Export Gemini JSON to env
       run: |
-        echo "=== Gemini CLI Analysis Results ==="
-        echo "Raw summary output:"
-        echo "${{ steps.analyze.outputs.summary }}"
-        echo "===================="
-        
-        {
-          echo "GEMINI_JSON<<EOF"
-          echo "${{ steps.analyze.outputs.summary }}"
-          echo "EOF"
-        } >> $GITHUB_ENV
+        echo "GEMINI_JSON<<EOF" >> $GITHUB_ENV
+        echo '${{ steps.analyze.outputs.summary }}' >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: Validate analyzed JSON
+      shell: bash
+      run: |
+        jq -e '
+          type=="object" and has("articles") and (.articles|type=="array") and
+          all(.articles[]; has("title") and has("link") and has("guid") and has("summary")
+            and (.category=="AI関連" or .category=="AI以外"))
+        ' <<< "$GEMINI_JSON" > /dev/null
 
     - name: Process analysis results
       id: process
