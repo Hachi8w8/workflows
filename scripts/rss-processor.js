@@ -44,7 +44,7 @@ async function detectNewArticles() {
         console.log(`Link: ${item.link || ''}`);
         console.log(`Published: ${item.pubDate || item.isoDate || ''}`);
         console.log(`GUID: ${id}`);
-        
+
         newArticles.push({
           title: item.title || '',
           link: item.link || '',
@@ -61,14 +61,19 @@ async function detectNewArticles() {
     // 出力ファイル（後続ジョブ用）
     if (newArticles.length > 0) {
       fs.writeFileSync(OUTPUT_FILE, JSON.stringify(newArticles, null, 2));
-      console.log(`✅ Saved ${newArticles.length} new articles to ${OUTPUT_FILE}`);
+      console.log(
+        `✅ Saved ${newArticles.length} new articles to ${OUTPUT_FILE}`
+      );
 
       // 既読IDを更新（重複除去して最新50件）
-      const nextSet = new Set([...processedIds, ...newArticles.map(a => a.guid)]);
+      const nextSet = new Set([
+        ...processedIds,
+        ...newArticles.map((a) => a.guid),
+      ]);
       const next = Array.from(nextSet).slice(-50);
 
       const dir = path.dirname(CACHE_FILE);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, {recursive: true});
       fs.writeFileSync(CACHE_FILE, JSON.stringify(next, null, 2));
       console.log(`📝 Updated cache with ${next.length} processed IDs`);
     }
@@ -83,7 +88,6 @@ async function detectNewArticles() {
       console.log(`has-new-articles=${newArticles.length > 0}`);
       console.log(`new-articles-count=${newArticles.length}`);
     }
-
   } catch (error) {
     console.error('RSS processing failed:', error);
     process.exit(1);

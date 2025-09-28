@@ -1,8 +1,8 @@
 name: RSS Monitor with Gemini Analysis
 
 on:
-  schedule:
-    - cron: '0 * * * *'  # 毎時0分に実行（1時間間隔）
+  # schedule:
+  #   - cron: '0 * * * *'  # 毎時0分に実行（1時間間隔）
   workflow_dispatch:
 
 concurrency:
@@ -62,3 +62,94 @@ jobs:
         else
           echo "⏭️  No new articles, skipping downstream jobs"
         fi
+
+  # Job2: Gemini分析 + JS処理 + Merge（n8nの複数ノードに対応）
+  gemini-analysis:
+    runs-on: ubuntu-latest
+    needs: rss-trigger
+    if: needs.rss-trigger.outputs.has-new-articles == 'true'
+    outputs:
+      analyzed-count: ${{ steps.process.outputs.analyzed-count }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Download new articles data
+      uses: actions/download-artifact@v4
+      with:
+        name: new-articles
+        path: .
+
+    - name: Analyze articles with Gemini CLI
+      id: analyze
+      uses: google-github-actions/run-gemini-cli@v0.1.12
+      with:
+        gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+        gemini_model: gemini-2.5-flash
+        settings: |
+          {
+            "coreTools": [
+              "run_shell_command(cat)"
+            ],
+            "output": { "format": "json" }
+          }
+        prompt: |
+          あなたは記事の分類と要約を行うAIです。
+
+          1) run_shell_command(cat, "new-articles.json") で記事配列を読み込んでください。
+             各要素は { title, link, pubDate, content, contentSnippet, guid } を持ちます。
+
+          2) 各記事ごとに以下を行い、最終的に {"articles":[...]} の **JSONのみ** を生成してください。
+             - category: 「AI関連」または「AI以外」の判定
+               * AI関連: 人工知能、機械学習、深層学習、ChatGPT、Gemini、Claude等のAIツール、プログラミングでのAI活用、AI開発、データサイエンス関連
+               * AI以外: 上記以外のすべて
+             - summary: 本文ベースの日本語要約（**content → contentSnippet → title の順に参照**）
+               * 事実に忠実に、2–3文、最大200字
+               * 誇張や新規事実の創作はしない
+               * 具体的なトピックや手法・ライブラリ名があれば含める
+             - title, link, pubDate, guid は入力の値をそのまま転記する
+
+
+          出力スキーマ（厳守）:
+          {
+            "articles": [
+              {
+                "title": "string",
+                "link": "string", 
+                "pubDate": "string",
+                "guid": "string",
+                "category": "AI関連" | "AI以外",
+                "summary": "string"
+              }
+            ]
+          }
+
+    - name: Export Gemini JSON to env
+      run: |
+        echo "GEMINI_JSON<<EOF" >> $GITHUB_ENV
+        echo '${{ steps.analyze.outputs.summary }}' >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: Process analysis results
+      id: process
+      env:
+        GEMINI_JSON: ${{ env.GEMINI_JSON }}
+      run: node scripts/gemini-analyzer.js
+
+    - name: Upload analyzed articles
+      uses: actions/upload-artifact@v4
+      with:
+        name: analyzed-articles
+        path: analyzed-articles.json
+
+    - name: Analysis summary
+      run: |
+        echo "🤖 Gemini Analysis Results:"
+        echo "   Total analyzed: ${{ steps.process.outputs.analyzed-count }}"
+        echo "✅ Ready for Discord notification job"
