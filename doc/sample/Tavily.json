@@ -1,0 +1,202 @@
+{
+  "name": "Tavily",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "926e551a-d441-4e17-a22c-c373ee5245ec",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "query": "=話題を集めたAIニュースや具体的なAI活用法をnoteや個人のブログを中心に集めてください。\n\n以下に当てはまるもののみ検索してください\n- 具体的な活用法を紹介しているもの\n- 新しく出たAIツール\n- AIツールのアップデート",
+        "options": {
+          "search_depth": "advanced",
+          "max_results": 20,
+          "time_range": "day",
+          "include_raw_content": true,
+          "include_domains": [],
+          "exclude_domains": [
+            "news.yahoo.co.jp",
+            "mainichi.jp",
+            "asahi.com",
+            "nikkei.com"
+          ]
+        }
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavily",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "87e24589-3967-4698-b3d2-38a9a0e21035",
+      "name": "Search",
+      "credentials": {
+        "tavilyApi": {
+          "id": "dj2DJukd6Tqw6djB",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=以下は今日のAIニュースたちです。\n取得されたニュースを元に、元の記事を読みたくなるような簡潔な要約を添えたニュースレターを作成してください。\n必ず元のURLは含めてください\n\n# ニュース一覧\n[\n{{ $json.results.map(a => `{ \"title\": ${JSON.stringify(a.title || \"\")}, \"url\": ${JSON.stringify(a.url || \"\")}, \"content\": ${JSON.stringify((a.content || \"\").slice(0, 5000))} }`).join(\",\\n\") }}\n]\n\n# 出力フォーマット（重要）\n次の **JSON Schema** に完全準拠した **JSON配列のみ** を返してください。\n前置き・説明・コードブロック（```json など）は一切不要です。\n\n各要素は下記の形です：\n{\n  \"title\": \"記事タイトル（そのまま/短縮可）\",\n  \"url\": \"元記事のURL（そのまま）\",\n  \"summary\": \"記事の要約（日本語・最大200文字。誇張せず要点だけ。クリックしたくなる一文を先頭に）\"\n}\n\n- summary は引用ではなく要約。\n- 不確かな推測は書かない。\n- タイトルが空または冗長な場合は要旨を損なわない範囲で短縮可。\n- URL は必ずそのまま（マークダウンにしない）。",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "d4ac0b5d-3d9b-4b9c-9e82-d5de4d20038b",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        176
+      ],
+      "id": "2b600a6b-a8cb-4800-bbd9-c59f871feba4",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ENN3spnnnjPFUOPL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// フェンス除去 → JSON配列にパース → 各要素をアイテム化\nconst raw = $input.first().json.text || '[]';\nconst cleaned = raw.replace(/^\\s*```json\\s*|\\s*```\\s*$/g, '').trim();\n\nlet arr = [];\ntry {\n  arr = JSON.parse(cleaned);\n} catch (e) {\n  arr = [];\n}\n\n// arr = [{title, url, summary}, ...] を n8n の複数アイテムに展開\nreturn arr.map(obj => ({ json: obj }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "eaac1c7d-de8d-4266-8041-d64ec4a5d547",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "options": {},
+        "embeds": {
+          "values": [
+            {
+              "description": "={{ $json.summary }}",
+              "title": "={{ $json.title }}",
+              "url": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        976,
+        0
+      ],
+      "id": "584cca33-4132-47db-bdcd-3cc37f9c3f92",
+      "name": "Discord",
+      "webhookId": "63a1e271-97ef-45c1-b4ad-c6ddb566bbf3",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "UwUwiIXLmd0dDnyy",
+          "name": "#ニュースレター"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b93b5069-2cf2-402e-8587-6e56afa40ecf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bf8ba79fe2bcbd1c78613e802aa4df65f0207e74782d71b981b2c0bae1941e3a"
+  },
+  "id": "SCUJNrtY9XSjdu2g",
+  "tags": []
+}

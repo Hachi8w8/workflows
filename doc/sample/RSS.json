@@ -1,0 +1,277 @@
+{
+  "name": "RSS",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "feedUrl": "https://zenn.dev/feed"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -128
+      ],
+      "id": "9ee393cd-e5d4-4c33-994f-723bed5492e3",
+      "name": "RSS Feed Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=**【{{$json.title}}】**\n\n{{ $json.summary }}\n\n🔗 {{$json.link}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        -224
+      ],
+      "id": "5053f437-7944-4518-a159-fbed4ad81368",
+      "name": "Discord",
+      "webhookId": "de7cc0c8-fdbf-4004-a765-f6ab81fedb1d",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "NpBcSlIZjrSjmJHT",
+          "name": "#AI_RSS_URL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=あなたは記事の分類と要約を行うAIです。\nタイトル: {{ $json.title }}\n内容: {{ $json.content }}\n\n以下のJSON形式で出力してください:\n{\n  \"category\": \"AI関連 または AI以外\",\n  \"summary\": \"記事の要約をわかりやすく日本語で書いてください\"\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        304,
+        64
+      ],
+      "id": "aa850f77-423e-4b74-bb36-c7e0882ce011",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ENN3spnnnjPFUOPL",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "AI関連",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8e8e0c7c-4c2b-48f3-86e4-9aaa57e62132"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AI関連"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8c693618-2930-4133-a10e-0c9c9bb61e40",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "AI関連",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AI関連以外"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1008,
+        -112
+      ],
+      "id": "121b6312-1dbf-415c-b506-c87b91d4dd60",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gemini の出力 text（JSON文字列）を安全にパースして category/summary を出す\nconst raw = $input.first().json.content.parts[0].text ?? \"{}\";\nconst cleaned = String(raw).replace(/```json|```/g, \"\").trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch {\n  parsed = {};\n}\n\nreturn {\n  json: {\n    category: parsed && parsed.category ? String(parsed.category).trim() : \"不明\",\n    summary: parsed && parsed.summary ? String(parsed.summary) : \"\",\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        64
+      ],
+      "id": "596b5614-a9d5-4259-b0c3-c31aa958c1e4",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        816,
+        -112
+      ],
+      "id": "471107e1-bf89-4820-93e8-27cbb00384ba",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=**【{{$json.title}}】**\n\n{{ $json.summary }}\n\n🔗 {{$json.link}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        -32
+      ],
+      "id": "0888ba46-2e12-43fe-84be-464915d4bfd4",
+      "name": "Discord1",
+      "webhookId": "de7cc0c8-fdbf-4004-a765-f6ab81fedb1d",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "cmutKSvL784UWDlK",
+          "name": "#OTHER_RSS_URL"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RSS Feed Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discord1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "31155499-2099-4edf-99cd-78ebfe269d44",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bf8ba79fe2bcbd1c78613e802aa4df65f0207e74782d71b981b2c0bae1941e3a"
+  },
+  "id": "Fi2BOf8IMKfT1elL",
+  "tags": []
+}

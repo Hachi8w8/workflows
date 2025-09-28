@@ -1,0 +1,64 @@
+name: RSS Monitor with Gemini Analysis
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # 毎時0分に実行（1時間間隔）
+  workflow_dispatch:
+
+concurrency:
+  group: rss-monitor
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  # Job1: RSS取得・差分検出
+  rss-trigger:
+    runs-on: ubuntu-latest
+    outputs:
+      # 新着記事があるかの真偽値
+      has-new-articles: ${{ steps.detect-new.outputs.has-new-articles }}
+      # 新着記事の数
+      new-articles-count: ${{ steps.detect-new.outputs.new-articles-count }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install RSS parser
+      run: npm install rss-parser
+
+    - name: Fetch and detect new articles
+      id: detect-new
+      run: node scripts/rss-processor.js
+
+    - name: Upload new articles data
+      if: steps.detect-new.outputs.has-new-articles == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: new-articles
+        path: new-articles.json
+
+    - name: Upload cache file
+      if: steps.detect-new.outputs.has-new-articles == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: rss-cache
+        path: cache/rss-processed.json
+
+    - name: Summary
+      run: |
+        echo "🔍 RSS Trigger Results:"
+        echo "   New articles found: ${{ steps.detect-new.outputs.has-new-articles }}"
+        echo "   Count: ${{ steps.detect-new.outputs.new-articles-count }}"
+        if [ "${{ steps.detect-new.outputs.has-new-articles }}" = "true" ]; then
+          echo "✅ Proceeding to Gemini analysis job"
+        else
+          echo "⏭️  No new articles, skipping downstream jobs"
+        fi
