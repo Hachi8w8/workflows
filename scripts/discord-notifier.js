@@ -16,11 +16,14 @@ function postWebhook(webhook, content) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     }, (res) => {
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        resolve();
-      } else {
-        reject(new Error(`Discord HTTP ${res.statusCode}`));
-      }
+      res.on('data', () => {}); // レスポンスデータを消費
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve();
+        } else {
+          reject(new Error(`Discord HTTP ${res.statusCode}`));
+        }
+      });
     });
 
     req.on('error', reject);
