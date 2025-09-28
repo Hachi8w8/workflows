@@ -132,9 +132,11 @@ jobs:
 
     - name: Export Gemini JSON to env
       run: |
-        echo "GEMINI_JSON<<EOF" >> $GITHUB_ENV
-        echo '${{ steps.analyze.outputs.summary }}' >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
+        {
+          echo "GEMINI_JSON<<EOF"
+          echo "${{ steps.analyze.outputs.summary }}"
+          echo "EOF"
+        } >> $GITHUB_ENV
 
     - name: Process analysis results
       id: process
