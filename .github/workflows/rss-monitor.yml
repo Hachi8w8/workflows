@@ -1,8 +1,8 @@
 name: RSS Monitor with Gemini Analysis
 
 on:
-  # schedule:
-  #   - cron: '0 * * * *'  # 毎時0分に実行（1時間間隔）
+  schedule:
+    - cron: '0 * * * *'  # 毎時0分に実行（1時間間隔）
   workflow_dispatch:
 
 concurrency:
@@ -234,14 +234,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "📝 No cache changes to commit"
           else
-            git commit -m "update: RSS cache with new processed articles
-
-            - Update processed article IDs cache
-            - Prevent duplicate notifications
-
-            🤖 Generated with [Claude Code](https://claude.ai/code)
-
-            Co-Authored-By: Claude <noreply@anthropic.com>"
+            git commit -m "update: RSS cache with new processed articles"
             git push
             echo "✅ Cache committed and pushed"
           fi
