@@ -130,8 +130,13 @@ jobs:
             ]
           }
 
-    - name: Export Gemini JSON to env
+    - name: Debug and export Gemini JSON
       run: |
+        echo "=== Gemini CLI Analysis Results ==="
+        echo "Raw summary output:"
+        echo "${{ steps.analyze.outputs.summary }}"
+        echo "===================="
+        
         {
           echo "GEMINI_JSON<<EOF"
           echo "${{ steps.analyze.outputs.summary }}"
