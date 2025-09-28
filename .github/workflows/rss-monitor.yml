@@ -137,10 +137,9 @@ jobs:
         echo "===================="
 
     - name: Export Gemini JSON to env
+      shell: bash
       run: |
-        echo "GEMINI_JSON<<EOF" >> $GITHUB_ENV
-        echo '${{ steps.analyze.outputs.summary }}' >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
+        printf 'GEMINI_JSON<<EOF\n%s\nEOF\n' "${{ steps.analyze.outputs.summary }}" >> "$GITHUB_ENV"
 
     - name: Validate analyzed JSON
       shell: bash
