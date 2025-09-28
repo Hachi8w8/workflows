@@ -178,7 +178,7 @@ jobs:
   discord-switch:
     runs-on: ubuntu-latest
     needs: gemini-analysis
-    if: needs.gemini-analysis.outputs.analyzed-count > 0
+    if: fromJSON(needs.gemini-analysis.outputs.analyzed-count) > 0
     
     steps:
     - name: Checkout repository
@@ -205,3 +205,56 @@ jobs:
       run: |
         echo "📢 Discord notifications sent"
         echo "✅ RSS monitoring workflow completed"
+
+  # Job4: キャッシュの永続化
+  cache-update:
+    runs-on: ubuntu-latest
+    needs: [discord-switch, gemini-analysis]
+    if: always() && fromJSON(needs.gemini-analysis.outputs.analyzed-count) > 0
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download cache file
+      uses: actions/download-artifact@v4
+      with:
+        name: rss-cache
+        path: cache
+      continue-on-error: true
+
+    - name: Commit and push cache updates
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        if [ -f "cache/rss-processed.json" ]; then
+          git add cache/rss-processed.json
+          
+          if git diff --staged --quiet; then
+            echo "📝 No cache changes to commit"
+          else
+            git commit -m "update: RSS cache with new processed articles
+
+            - Update processed article IDs cache
+            - Prevent duplicate notifications
+
+            🤖 Generated with [Claude Code](https://claude.ai/code)
+
+            Co-Authored-By: Claude <noreply@anthropic.com>"
+            git push
+            echo "✅ Cache committed and pushed"
+          fi
+        else
+          echo "⚠️ Cache file not found, skipping commit"
+        fi
+
+    - name: Cache summary
+      run: |
+        echo "💾 Cache Update Results:"
+        if [ -f "cache/rss-processed.json" ]; then
+          echo "   Cache file: $(wc -l < cache/rss-processed.json) processed IDs"
+        else
+          echo "   Cache file: Not found"
+        fi
+        echo "🎯 RSS monitoring workflow fully completed"
