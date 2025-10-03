@@ -1,7 +1,4 @@
 [
-  "https://zenn.dev/loglass/articles/e6525e7e8b7a69",
-  "https://zenn.dev/datum_studio/articles/21ba0949af8156",
-  "https://zenn.dev/thirdlf/articles/36-zenn-github-copilot-cli",
   "https://zenn.dev/cybozu_frontend/articles/e17267112d7816",
   "https://zenn.dev/tmasuyama1114/articles/claude_code_commands",
   "https://zenn.dev/knowledgework/articles/9b82d0c0a34ab4",
@@ -48,5 +45,8 @@
   "https://zenn.dev/nix/articles/8751bf909737e2",
   "https://zenn.dev/fugafuga/articles/9f999869812c17",
   "https://zenn.dev/eversteel_tech/articles/51f9b749b8f051",
-  "https://zenn.dev/sayjoy/articles/soc2-yuru-meetup-report"
+  "https://zenn.dev/sayjoy/articles/soc2-yuru-meetup-report",
+  "https://zenn.dev/mod_poppo/articles/floating-point-canonicity",
+  "https://zenn.dev/retrieva_tech/articles/c0a7fc6fe35fb4",
+  "https://zenn.dev/flinters_blog/articles/db9e9e90ea8dde"
 ]
