@@ -1,9 +1,4 @@
 [
-  "https://zenn.dev/schroneko/articles/openai-sora-2",
-  "https://zenn.dev/chooyan/articles/94052f1b10c045",
-  "https://zenn.dev/ubie_dev/articles/8e8c107419601b",
-  "https://zenn.dev/weathernews/articles/870c8ac6013593",
-  "https://zenn.dev/react_tokyo/articles/9afa2805562855",
   "https://zenn.dev/dely_jp/articles/47c55622ec2b34",
   "https://zenn.dev/cavernaria/articles/f857da8ffc9db0",
   "https://zenn.dev/omakase/articles/b2e85e51ca45ef",
@@ -48,5 +43,10 @@
   "https://zenn.dev/carenet/articles/5a771c6fb58623",
   "https://zenn.dev/mutao/articles/effective-reading-tips",
   "https://zenn.dev/aws_japan/articles/acc24ed211393e",
-  "https://zenn.dev/emrum/articles/designbench-frontend-code-vs-images"
+  "https://zenn.dev/emrum/articles/designbench-frontend-code-vs-images",
+  "https://zenn.dev/namn1125/articles/1a40205d9f8f9a",
+  "https://zenn.dev/agata/articles/72f70d607dd8f3",
+  "https://zenn.dev/sunagaku/articles/0105c57e0a1283",
+  "https://zenn.dev/aws_japan/articles/4b7e43e96d23e2",
+  "https://zenn.dev/shunk031/articles/testable-dotfiles-management-with-chezmoi"
 ]
