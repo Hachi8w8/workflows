@@ -1,8 +1,4 @@
 [
-  "https://zenn.dev/oikon/articles/claude-code-2",
-  "https://zenn.dev/canly/articles/c77bf9f7a67582",
-  "https://zenn.dev/neoai/articles/0998f81c39a583",
-  "https://zenn.dev/cybernetics/articles/f879e10b53c2db",
   "https://zenn.dev/starai_org/articles/cf1025f36615a1",
   "https://zenn.dev/chot/articles/d5ffeb6de3e7c2",
   "https://zenn.dev/saldra/articles/fa8ea14b5a1880",
@@ -48,5 +44,9 @@
   "https://zenn.dev/gatechnologies/articles/a1cdc8ee299c25",
   "https://zenn.dev/d_date/articles/8b6ded8fdd2403",
   "https://zenn.dev/forward/articles/cd0e0453822f7e",
-  "https://zenn.dev/atoy0m0/articles/7b3d7d99a6bb33"
+  "https://zenn.dev/atoy0m0/articles/7b3d7d99a6bb33",
+  "https://zenn.dev/medley/articles/optimizing-claude-code-context-with-mcp-tool-audit",
+  "https://zenn.dev/gvatech_blog/articles/2d121536d81eb0",
+  "https://zenn.dev/shintake/articles/cc4779fb80dea7",
+  "https://zenn.dev/y_ta/articles/required-partial-equals-a"
 ]
