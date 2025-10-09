@@ -1,15 +1,4 @@
 [
-  "https://zenn.dev/nix/articles/8751bf909737e2",
-  "https://zenn.dev/fugafuga/articles/9f999869812c17",
-  "https://zenn.dev/eversteel_tech/articles/51f9b749b8f051",
-  "https://zenn.dev/sayjoy/articles/soc2-yuru-meetup-report",
-  "https://zenn.dev/mod_poppo/articles/floating-point-canonicity",
-  "https://zenn.dev/retrieva_tech/articles/c0a7fc6fe35fb4",
-  "https://zenn.dev/flinters_blog/articles/db9e9e90ea8dde",
-  "https://zenn.dev/10q89s/articles/4a42fb779fde89",
-  "https://zenn.dev/microsoft/articles/agent-framework-001",
-  "https://zenn.dev/prevent/articles/9fa89a131f765f",
-  "https://zenn.dev/cp_r/articles/48cb7def27b19a",
   "https://zenn.dev/medurance/articles/strands-agents-hands-on",
   "https://zenn.dev/hi_kun0912/articles/046fde28d0133e",
   "https://zenn.dev/ubie_dev/articles/dc6a0d8f74fd76",
@@ -48,5 +37,16 @@
   "https://zenn.dev/galirage/articles/openai-dev-day-2025-keynote",
   "https://zenn.dev/prgckwb/articles/openai-sora2-api",
   "https://zenn.dev/schroneko/articles/openai-devday-2025",
-  "https://zenn.dev/tmasuyama1114/books/claude_code_basic"
+  "https://zenn.dev/tmasuyama1114/books/claude_code_basic",
+  "https://zenn.dev/toga/articles/immutable-vector",
+  "https://zenn.dev/sapeet/articles/edfee5b30d79a8",
+  "https://zenn.dev/noppe/articles/d637794eb7583b",
+  "https://zenn.dev/techlead/articles/2025-10-05-rust-sandbox-tool-mori",
+  "https://zenn.dev/yua134/articles/montecarlo-pi",
+  "https://zenn.dev/jackchuka/articles/65592ccfb8c548",
+  "https://zenn.dev/bita/articles/4a0d0f9af31110",
+  "https://zenn.dev/carenet/articles/recovering-from-bigquery-dataset-deletion",
+  "https://zenn.dev/tomatommy/articles/471104acc92c27",
+  "https://zenn.dev/knowledgesense/articles/148dfe2ca1d146",
+  "https://zenn.dev/mokume1shine/articles/434cd1ff53803e"
 ]
