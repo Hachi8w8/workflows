@@ -1,9 +1,4 @@
 [
-  "https://zenn.dev/atoy0m0/articles/7b3d7d99a6bb33",
-  "https://zenn.dev/medley/articles/optimizing-claude-code-context-with-mcp-tool-audit",
-  "https://zenn.dev/gvatech_blog/articles/2d121536d81eb0",
-  "https://zenn.dev/shintake/articles/cc4779fb80dea7",
-  "https://zenn.dev/y_ta/articles/required-partial-equals-a",
   "https://zenn.dev/kyome/articles/c5935b24be35e0",
   "https://zenn.dev/takaki_maeda_99/articles/80606c946db64e",
   "https://zenn.dev/iinoten/articles/084708f69f3f26",
@@ -48,5 +43,10 @@
   "https://zenn.dev/mkt_engr/articles/20251012_error-boundary-suspense-storybook",
   "https://zenn.dev/microsoft/articles/agent-framework-007",
   "https://zenn.dev/takeshy/articles/ffe23204d1d326",
-  "https://zenn.dev/timelab/articles/35ed5187137796"
+  "https://zenn.dev/timelab/articles/35ed5187137796",
+  "https://zenn.dev/tmasuyama1114/articles/claude_code_best_practice_guide",
+  "https://zenn.dev/edom18/articles/jpeg-send-ble",
+  "https://zenn.dev/coji/articles/remix3-introduction",
+  "https://zenn.dev/cybernetics/articles/083cb782b4099c",
+  "https://zenn.dev/shinya/articles/d6b0a6ee2df607"
 ]
